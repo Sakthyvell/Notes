@@ -1,0 +1,32 @@
+{
+  // Auto-build on save
+  "latex-workshop.latex.autoBuild.run": "onSave",
+
+  // PDF viewer in VSCode tab
+  "latex-workshop.view.pdf.viewer": "tab",
+
+  // Build recipe with custom script
+  "latex-workshop.latex.tools": [
+    {
+      "name": "build-to-output",
+      "command": "bash",
+      "args": [
+        "-c",
+        "DIR_NAME=$(basename $(dirname %DOC%)) && pdflatex -interaction=nonstopmode -file-line-error -output-directory=%DIR%/../build -jobname=$DIR_NAME %DOC%"
+      ],
+      "env": {}
+    }
+  ],
+
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "Build to build/ folder",
+      "tools": [
+        "build-to-output"
+      ]
+    }
+  ],
+
+  // Disable auto-clean to avoid latexmk dependency
+  "latex-workshop.latex.autoClean.run": "never"
+}
