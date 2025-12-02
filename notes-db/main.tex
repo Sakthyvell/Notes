@@ -1,0 +1,217 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{parskip}
+
+% SQL code styling
+\lstset{
+    language=SQL,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+}
+
+\title{Sakthy re-learns DB stuff properly}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Motivation}
+I know SQL but do I really \textbf{know} SQL? I have been able to get by with basic queries and I even know how advanced concepts like indexing, normalization, and transactions. However, I feel like my understanding is superficial. I want to understand how it works under the hood and when to use what. I have debugged numerous issues in the past but when I think about them now, I can't seem to recall the exact details. So this document is my personal journey to re-learn and deeply understand database concepts.
+
+\section{Understanding SQL query cost}
+Why do need optimized SQL queries? Why can't we just write any query and let the database handle it? So it seems that there seems to be a cost associated with executing SQL queries. This cost can be measured in terms of time taken to execute the query, resources consumed (like CPU and memory), and the impact on other operations happening in the database.
+
+
+From what I have experienced so far, the cost of SQL queries is made up of (within things that you can control):
+\begin{itemize}
+    \item \textbf{Data Volume:} Duh. The more data you have to process, the longer it takes.
+    \item \textbf{Query Complexity:} If an SQL query is doing way too much work in a single statement, it can be slow.
+    \item \textbf{Index Usage:} Lack of indexes they say but its not that simple. Double edged sword. Indexes speed up read operations but can slow down write operations.
+    \item \textbf{Locking and Concurrency:} When we are running multiple queries at the same time, they can interfere with each other. Locks and delays can add to the cost.
+    \item \textbf{Network Latency:} If the database is on a different server, the time taken to send and receive data over the network can add to the overall cost. Usually bottleneck when the connection pool is exhausted sometimes.
+\end{itemize}
+
+\subsection{Case 1: EXPLAIN ANALYZE statement}
+I have seen the \textbf{EXPLAIN ANALYZE} statement in SQL but do I understand it properly? \textit{Heck no}. So I'm stuck in a solution where I have to optimize queries but I don't know how to do it properly. Well I have written a monstrousity of a query to export data from MySQL to CSV files. It works and accomplishes the task.
+
+\begin{lstlisting}
+WITH RECURSIVE city_items AS (
+    SELECT
+        lr.id AS location_restriction_id,
+        lr.description,
+        'origin_multiple_cities' AS field_name,
+        lr.origin_multiple_cities AS original_cities_csv,
+        TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(lr.origin_multiple_cities, ',', numbers.n), ',', -1)) AS item_value,
+        numbers.n
+    FROM
+        rate_card_locationrestriction lr
+    CROSS JOIN (
+        SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
+        UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10
+        UNION ALL SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15
+        UNION ALL SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20
+    ) numbers
+    WHERE
+        lr.origin_multiple_cities IS NOT NULL
+        AND lr.origin_multiple_cities != ''
+        AND numbers.n <= 1 + (LENGTH(lr.origin_multiple_cities) - LENGTH(REPLACE(lr.origin_multiple_cities, ',', '')))
+)
+SELECT
+    si.location_restriction_id,
+    si.description,
+    c.id AS company_id,
+    c.company_name,
+    rc.id AS rate_card_id,
+    rc.name AS rate_card_name,
+    si.field_name,
+    si.item_value,
+    si.original_cities_csv,
+    CASE
+        WHEN COUNT(DISTINCT s1.id) > 0 OR COUNT(DISTINCT s2.id) > 0 THEN 'Yes'
+        ELSE 'No'
+    END AS found_in_lookup,
+    COALESCE(GROUP_CONCAT(DISTINCT s1.id ORDER BY s1.id SEPARATOR ','), '') AS matched_by_name_ids,
+    COALESCE(GROUP_CONCAT(DISTINCT s2.id ORDER BY s2.id SEPARATOR ','), '') AS matched_by_code_ids
+FROM
+    city_items si
+LEFT JOIN
+    rate_card_ratecard_location_restrictions rclr ON rclr.locationrestriction_id = si.location_restriction_id
+LEFT JOIN
+    rate_card_ratecard rc ON rc.id = rclr.ratecard_id
+LEFT JOIN
+    company_company c ON c.id = rc.shipper_company_id
+LEFT JOIN
+    common_cityv2 s1 ON LOWER(s1.name) = LOWER(si.item_value)
+LEFT JOIN
+    common_cityv2 s2 ON LOWER(s2.name_wo_diacritics) = LOWER(si.item_value)
+WHERE
+    TRIM(si.item_value) != '' and rc.shipper_company_id = '572'
+GROUP BY
+    si.location_restriction_id,
+    si.description,
+    c.id,
+    c.company_name,
+    rc.id,
+    rc.name,
+    si.field_name,
+    si.item_value
+ORDER BY
+    c.company_name,
+    rc.name,
+    si.location_restriction_id;    
+\end{lstlisting}
+Sorry for abusing your eyes with this monstrous query. What this query does is that it extracts individual city names from a comma-separated list of cities stored in the \verb|origin_multiple_cities| field of the \verb|rate_card_locationrestriction| table. It then checks if these city names exist in the \verb|common_cityv2| table either by name or by name without diacritics. Finally, it aggregates the results to show which cities were found and their corresponding IDs. The query seems bad but how bad it is?
+
+\subsubsection{Analyzing the EXPLAIN output}
+
+So I know what it does, but what's the damage? So hence, let's run \texttt{EXPLAIN ANALYZE} on this query. The output is a below:
+
+\begin{verbatim}
+-> Sort: c.company_name, rc.`name`, si.location_restriction_id
+   (actual time=1593..1593 rows=4 loops=1)
+    -> Stream results  (actual time=1593..1593 rows=4 loops=1)
+        -> Group aggregate: group_concat(distinct common_cityv2.id ...)
+           (actual time=1593..1593 rows=4 loops=1)
+            -> Sort: si.location_restriction_id, si.`description`, ...
+               (actual time=1593..1593 rows=43 loops=1)
+                -> Stream results  (cost=62.3e+12 rows=623e+12)
+                   (actual time=1406..1593 rows=43 loops=1)
+                    -> Left hash join (lower(s2.name_wo_diacritics)=...)
+                       (cost=62.3e+12 rows=623e+12)
+                       (actual time=1406..1593 rows=43 loops=1)
+                        -> Left hash join (lower(s1.`name`)=...)
+                           (cost=70.5e+6 rows=705e+6)
+                           (actual time=616..813 rows=13 loops=1)
+                            -> Filter: (trim(...) <> '' and ...)
+                               (cost=577 rows=797)
+                               (actual time=1.59..1.66 rows=4 loops=1)
+                                -> Inner hash join (no condition)
+                                   (cost=577 rows=797)
+                                   (actual time=1.58..1.6 rows=80 loops=1)
+                                    -> Table scan on numbers
+                                       (actual time=0.0314..0.0339 rows=20)
+                                    -> Hash
+                                        -> Nested loop inner join
+                                           (actual time=0.185..1.51 rows=4)
+                                            -> Filter: origin_multiple_cities
+                                               IS NOT NULL
+                                               (actual time=0.00221..0.00221
+                                               rows=0.0132 loops=302)
+                            -> Hash
+                                -> Table scan on s1
+                                   (cost=122 rows=884073)
+                                   (actual time=0.118..270 rows=890564)
+                        -> Hash
+                            -> Table scan on s2
+                               (cost=10.9 rows=884073)
+                               (actual time=0.0835..275 rows=890564)
+\end{verbatim}
+
+So the output is tree-structure like and needs to be read from innermost to outermost. Some key metrics to remember are:
+\begin{itemize}
+    \item \textbf{actual time:} Time in milliseconds
+    \begin{itemize}
+        \item Format: \texttt{actual time=start..end}
+    \end{itemize}
+    \item \textbf{rows:} How many rows were processed
+    \item \textbf{cost:} Estimated abstract unit for estimating query expensive
+    \item \textbf{loops:} How many times this operation ran
+\end{itemize}
+
+\noindent\makebox[\linewidth]{\rule{\paperwidth}{0.4pt}}
+\textbf{Understanding "cost"}
+Cost is a weighted sum of various operations. For example, MySQL calculates it like this.
+
+\begin{align*}
+\texttt{cost} &= (\texttt{rows\_examined} \times \texttt{row\_eval\_cost}) \\
+&\quad + (\texttt{pages\_read} \times \texttt{io\_block\_read\_cost}) \\
+&\quad + (\texttt{index\_lookups} \times \texttt{key\_lookup\_cost}) + \ldots
+\end{align*}
+
+where each cost as a weight associated to it. So the "cost" is relative. It has no real value. But it abstractly show you how expensive an operation is.
+
+\noindent\makebox[\linewidth]{\rule{\paperwidth}{0.4pt}}
+
+So what does this mean for my query? The flow seems to be like this:
+\begin{enumerate}
+    \item Scans 890K cities twice (540ms)
+    \item Builds hash tables for lookups (616-1406ms)
+    \item Processes only 4 location restrictions that match the filter
+    \item Returns 43 intermediate rows, grouped down to 4 final rows
+    \item Total execution time: 1.6 seconds
+\end{enumerate}
+
+
+So these kinda reveal some serious issues:
+\begin{itemize}
+    \item No index usage because of \texttt{LOWER()} functions on both sides of joins
+    \item Full table scans on a 890K row table (twice!)
+    \item Plan shows 62.3e+12 cost (12 trillion!)
+    \item The actual data needed is tiny (4 restrictions, 4 cities) but MySQL doesn't know this upfront and must scan everything
+\end{itemize}
+
+So \texttt{EXPLAIN ANALYZE} statement can kinda you give you understanding how good or bad query is (\textit{although I do not yet understand it fully, just minimal understanding alone can you give you so much context}). For my use-case, this is an ad-hoc script that I'm gonna run once to generate a CSV report. So I don't need to fix this. Yay! \textit{PS: Please do fix this if its a query that you will run more than once.}
+\end{document}
