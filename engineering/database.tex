@@ -1,47 +1,5 @@
-\documentclass[11pt]{article}
-
-% Packages
-\usepackage[margin=1in]{geometry}
-\usepackage{amsmath}
-\usepackage{listings}
-\usepackage{xcolor}
-\usepackage{hyperref}
-\usepackage{parskip}
-
-% SQL code styling
-\lstset{
-    language=SQL,
-    basicstyle=\ttfamily\small,
-    keywordstyle=\color{blue},
-    commentstyle=\color{gray},
-    stringstyle=\color{red},
-    numbers=left,
-    numberstyle=\tiny\color{gray},
-    stepnumber=1,
-    numbersep=5pt,
-    backgroundcolor=\color{white},
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
-    frame=single,
-    tabsize=4,
-    captionpos=b,
-    breaklines=true,
-    breakatwhitespace=false,
-}
-
-\title{Sakthy re-learns DB stuff properly}
-
-\begin{document}
-
-\maketitle
-\tableofcontents
-\newpage
-
-\section{Motivation}
-I know SQL but do I really \textbf{know} SQL? I have been able to get by with basic queries and I even know how advanced concepts like indexing, normalization, and transactions. However, I feel like my understanding is superficial. I want to understand how it works under the hood and when to use what. I have debugged numerous issues in the past but when I think about them now, I can't seem to recall the exact details. So this document is my personal journey to re-learn and deeply understand database concepts.
-
-\section{Understanding SQL query cost}
+\section{Database}
+\subsection{Understanding SQL query cost}
 Why do need optimized SQL queries? Why can't we just write any query and let the database handle it? So it seems that there seems to be a cost associated with executing SQL queries. This cost can be measured in terms of time taken to execute the query, resources consumed (like CPU and memory), and the impact on other operations happening in the database.
 
 
@@ -54,7 +12,7 @@ From what I have experienced so far, the cost of SQL queries is made up of (with
     \item \textbf{Network Latency:} If the database is on a different server, the time taken to send and receive data over the network can add to the overall cost. Usually bottleneck when the connection pool is exhausted sometimes.
 \end{itemize}
 
-\subsection{Case 1: EXPLAIN ANALYZE statement}
+\subsubsection{Case 1: EXPLAIN ANALYZE statement}
 I have seen the \textbf{EXPLAIN ANALYZE} statement in SQL but do I understand it properly? \textit{Heck no}. So I'm stuck in a solution where I have to optimize queries but I don't know how to do it properly. Well I have written a monstrousity of a query to export data from MySQL to CSV files. It works and accomplishes the task.
 
 \begin{lstlisting}
@@ -125,7 +83,7 @@ ORDER BY
 \end{lstlisting}
 Sorry for abusing your eyes with this monstrous query. What this query does is that it extracts individual city names from a comma-separated list of cities stored in the \verb|origin_multiple_cities| field of the \verb|rate_card_locationrestriction| table. It then checks if these city names exist in the \verb|common_cityv2| table either by name or by name without diacritics. Finally, it aggregates the results to show which cities were found and their corresponding IDs. The query seems bad but how bad it is?
 
-\subsubsection{Analyzing the EXPLAIN output}
+\paragraph{Analyzing the EXPLAIN output}
 
 So I know what it does, but what's the damage? So hence, let's run \texttt{EXPLAIN ANALYZE} on this query. The output is a below:
 
@@ -187,8 +145,7 @@ Cost is a weighted sum of various operations. For example, MySQL calculates it l
 
 \begin{align*}
 \texttt{cost} &= (\texttt{rows\_examined} \times \texttt{row\_eval\_cost}) \\
-&\quad + (\texttt{pages\_read} \times \texttt{io\_block\_read\_cost}) \\
-&\quad + (\texttt{index\_lookups} \times \texttt{key\_lookup\_cost}) + \ldots
+&\quad + (\texttt{pages\_read} \times \texttt{io\_block\_read\_cost})
 \end{align*}
 
 where each cost as a weight associated to it. So the "cost" is relative. It has no real value. But it abstractly show you how expensive an operation is.
@@ -214,4 +171,3 @@ So these kinda reveal some serious issues:
 \end{itemize}
 
 So \texttt{EXPLAIN ANALYZE} statement can kinda you give you understanding how good or bad query is (\textit{although I do not yet understand it fully, just minimal understanding alone can you give you so much context}). For my use-case, this is an ad-hoc script that I'm gonna run once to generate a CSV report. So I don't need to fix this. Yay! \textit{PS: Please do fix this if its a query that you will run more than once.}
-\end{document}

@@ -12,12 +12,11 @@
       "command": "bash",
       "args": [
         "-c",
-        "DIR_NAME=$(basename $(dirname %DOC%)) && pdflatex -interaction=nonstopmode -file-line-error -output-directory=%DIR%/../build -jobname=$DIR_NAME %DOC%"
+        "BASE_NAME=$(basename %DOCFILE% .tex) && DIR_NAME=$(basename $(dirname %DOC%)) && if [ \"$BASE_NAME\" = \"main\" ]; then OUTPUT_NAME=$DIR_NAME; else OUTPUT_NAME=${DIR_NAME}-${BASE_NAME}; fi && pdflatex -interaction=nonstopmode -file-line-error -output-directory=%DIR%/../build -jobname=$OUTPUT_NAME %DOC%"
       ],
       "env": {}
     }
   ],
-
   "latex-workshop.latex.recipes": [
     {
       "name": "Build to build/ folder",

@@ -1,0 +1,45 @@
+\section{Python Fundamentals}
+\subsection{Modules and Packages}
+
+\subsubsection{What's in \texttt{\_\_init\_\_.py}?}
+\texttt{\_\_init\_\_.py} is used to mark a directory as a Python package. There seems to be a lot of confusion about what should go inside this file. Some say it needs to be empty and some say we can put some there. But for me (\textit{after lots of reading}), it felt like \texttt{\_\_init\_\_.py} should not be empty but should not contain too much code either.
+
+It can contain the following:
+\begin{itemize}
+    \item \textbf{Package Initialization:} Basically things you want to run when the package is imported. This can include logging, configuration settings, etc.
+    \item \textbf{Act as public API:} You can define what is accessible when the package is imported using \texttt{\_\_all\_\_} list. So someone who is using this package can know what is the public interface rather than digging into the package internals. 
+    \item \textbf{Submodule Imports:} This is important for backward compatibility. If you have submodules in your package and you want to make them accessible directly from the package, you can import them in \texttt{\_\_init\_\_.py}. This way, users can access submodules without needing to know the internal structure of the package.
+\end{itemize}
+
+But it should \textbf{NOT} contain:
+\begin{itemize}
+    \item \textbf{Heavy Business Logic:} I don't think we should put heavy business logic or complex functions in \texttt{\_\_init\_\_.py}. This should be purely an interface file rather than a place to put all the code.
+    \item \textbf{Large Imports:} Avoid importing large libraries or modules in \texttt{\_\_init\_\_.py} as it can slow down the package import time. Only import what is necessary for the package initialization and what you want to expose as part of the public API.
+    \item \textbf{Circular Imports:} Be cautious about importing modules that might lead to circular dependencies. This can cause import errors and make the code harder to maintain.
+\end{itemize}
+
+\subsubsection{How does package gets imported?}
+When you import a package in Python, the interpreter follows a specific sequence of steps to locate and load the package. Here's a simplified explanation of how it works:
+\begin{enumerate}
+    \item \textbf{Search in sys.modules:} First, Python checks if the package is already loaded in memory by looking in the \texttt{sys.modules} dictionary. If it finds the package there, it uses the existing module object.
+    \item \textbf{Locate the Package:} If the package is not found in \texttt{sys.modules}, Python searches for the package in the directories listed in \texttt{sys.path}. This list includes the current directory, standard library directories, and any directories specified in the \texttt{PYTHONPATH} environment variable.
+    \item \textbf{Load the Package:} Once Python locates the package directory, it looks for the \texttt{\_\_init\_\_.py} file inside that directory. This file is executed to initialize the package.
+    \item \textbf{Create Module Object:} Python creates a new module object for the package and adds it to \texttt{sys.modules}.
+    \item \textbf{Execute \texttt{\_\_init\_\_.py}:} The code inside \texttt{\_\_init\_\_.py} is executed. This can include setting up package-level variables, importing submodules, and defining the package's public API.
+    \item \textbf{Make the Package Available:} After executing \texttt{\_\_init\_\_.py}, the package is now available for use in the importing module. You can access its submodules and attributes as defined in \texttt{\_\_init\_\_.py}.
+\end{enumerate}
+
+So many steps just to import a package! \textit{So remember, don't ignore the linter error of unused imports lol. The app is dying from all these unnecessary imports slowing down the import time.}
+
+\subsubsection{Absolute vs Relative imports}
+Absolute imports is just specifying the full path of the module you want to import starting from the project's root directory. For example:
+\begin{lstlisting}[caption=Absolute Import Example]
+from my_package.submodule import my_function
+\end{lstlisting}
+Relative imports, on the other hand, use dot notation to specify the location of the module relative to the current module. For example:
+\begin{lstlisting}[caption=Relative Import Example]
+from .submodule import my_function  # Single dot means current package
+from ..another_module import another_function  # Double dot means parent package
+\end{lstlisting}
+
+I see more value in absolute module because it remove cognitive load. It's all just there. You know exactly where the module is located in the project structure. There is no need for any mind calculations. But it's not bells and whistles. Relative imports to certain extent decouple the module from the project structure. So if you are moving modules around a lot, relative imports can be useful. But I think absolute imports are the way to go for most cases.
