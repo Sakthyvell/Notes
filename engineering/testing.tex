@@ -1,0 +1,31 @@
+\section{Testing}
+Testing seems to be an afterthought in many engineering teams. I also had this disease during my initial days. But over time, seemed like proper testing is the only way for me to feel confident about the code I write. But when I wanted to learn testing, my mind went blank. What to tests? How do I know if my tests are good enough? Is there such thing as unnecessary tests? This section is probably not my notes but rather a collection of failures and learnings whenever I messed up testing.
+
+\subsection{Testing Methodologies}
+So where does testing comes into in the software development lifecycle? There are many methodologies out there. But the two most popular ones are Test-Driven Development (TDD) and Behavior-Driven Development (BDD). 
+
+\subsubsection{Test-Driven Development (TDD)}
+TDD is a software development approach where tests are written before the actual code. The process follows a simple cycle known as "Red-Green-Refactor":
+\begin{enumerate}
+    \item \textbf{Red:} Write a test that defines a function or improvement you want to implement. Run the test, and it should fail since the functionality is not yet implemented.
+    \item \textbf{Green:} Write the minimum amount of code necessary to make the test pass. Run the test again, and it should pass.
+    \item \textbf{Refactor:} Review the code you just wrote and improve its structure without changing its behavior. Run the tests again to ensure they still pass.
+\end{enumerate}
+\subsubsection{Behavior-Driven Development (BDD)}
+BDD is an extension of TDD that focuses on the behavior of the application from the end-user's perspective. It emphasizes collaboration between developers, testers, and non-technical stakeholders. BDD uses a more natural language style to describe tests, often using the "Given-When-Then" format:
+\begin{itemize}
+    \item \textbf{Given:} The initial context or state of the system.
+    \item \textbf{When:} The action or event that triggers the behavior.
+    \item \textbf{Then:} The expected outcome or result of the action.
+\end{itemize}
+Both TDD and BDD aim to improve code quality, ensure that the software meets requirements, and facilitate collaboration among team members. The choice between TDD and BDD often depends on the project's needs and the team's preferences.
+
+\subsection{Types of Testing}
+There are lots of types testing out there. So in a SDLC (Software Development Life Cycle), where do these testing types fit in? Here is a simple breakdown of the common types of testing and where they fit in the SDLC:
+\begin{itemize}
+    \item \textbf{Unit Testing:} First test every developer should write. Only for the segment of code they are working on. Everything else either mock or stub. DB connection? Mock it. API call? Stub it. Only test the function/method/class you are working on.
+    \item \textbf{Integration Testing:} Integration testing focuses not on the correctness of what the code is doing but rather it works well with other components. So if your code is doing CRUD operations with a database, integration testing will ensure that the code interacts correctly with the database. So DB connection should not be mocked here. You want to test the actual interaction.
+    \item \textbf{System Testing:} This type of testing evaluates the entire system as a whole to ensure it meets the specified requirements. System testing is typically conducted during the system testing phase, after integration testing.
+    \item \textbf{Acceptance Testing:} This is the final level of testing and focuses on validating the software against user requirements. Acceptance testing is usually performed during the acceptance phase, often involving end-users or stakeholders to ensure the software meets their needs.
+\end{itemize}
+Each type of testing plays a crucial role in ensuring the quality and reliability of the software throughout its development lifecycle. It's important to implement a comprehensive testing strategy that includes all these levels of testing to catch issues early and ensure a robust final product.

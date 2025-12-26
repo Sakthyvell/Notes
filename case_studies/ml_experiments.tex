@@ -1,0 +1,35 @@
+\section{ML Experiments}
+
+\subsection{Benchmarking OCR model on shipment packing list data}
+In logistics domain, shipment packing lists are essential documents that detail the contents of a shipment. Currently, the information from the packing list is manually entered into the system which is time-consuming. To automate this, we experimented with various OCR models to extract text from scanned packing list images.
+
+\subsubsection{Problems in Packing List text extraction}
+\paragraph{Inconsistent Data Format}
+Packing lists vary significantly in format, font styles, and layouts across different vendors. Some issues we observed in collected data is:
+\begin{itemize}
+    \item Different layouts, fonts and structures
+    \item Tables spanning multiple pages
+    \item Handwritten notes and stamps overlapping printed text
+    \item Low-quality scans with noise and skew
+    \item Varied languages and character sets
+    \item Complex tables with merged cells and inconsistent alignments
+\end{itemize}
+
+\subsection{Solution \#1: Text extraction through LLM-models}
+We experimented with LLM-based models like GPT-4 and Claude to extract structured data from packing list images. The workflow involved:
+\begin{enumerate}
+    \item Upload the scanned packing list image + prompt.
+    \item Use LLM to extract raw text from the image.
+    \item Use LLM to parse the extracted text into structured JSON format.
+    \item Post-process the JSON to ensure data consistency.
+\end{enumerate} 
+\paragraph{Assumptions about this approach}
+This is not a traditional OCR approach. We are leveraging the LLM's ability to understand context and structure in text. So we have to assume
+\begin{itemize}
+    \item This is the most viable approach given the business needs of quick turnaround and minimal manual intervention.
+    \item The cost of using LLMs is justified by the time saved in manual data entry.
+    \item The LLMs can recognize and interpret various formats and layouts at an acceptable accuracy level.
+    \item This approach is only to validate the idea before investing in building a custom OCR solution.
+\end{itemize}
+
+

@@ -1,0 +1,120 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{natbib}
+
+\lstdefinestyle{python}{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+}
+
+\lstdefinestyle{bash}{
+    language=bash,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+}
+
+\lstdefinestyle{sql}{
+    language=SQL,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=4,
+    captionpos=b,
+    breaklines=true,
+    breakatwhitespace=false,
+}
+
+\title{Engineering Runbook}
+\author{Sakthyvell}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{AWS for noobs}
+
+\subsection{AWS Setup}
+
+
+
+\section{Manual Testing as a SWE}
+Manual testing is an art that I lack. As a software engineer, I have always focused on writing code and automating tests. However, I have come to realize the importance of manual testing in ensuring the quality of software. But the problem is, I suck at manual testing. I often miss edge cases and fail to think like an end-user. This has led to bugs and issues that could have been avoided with better manual testing. So this section is a growing list of test cases and scenarios that I need to remember while testing my code manually.
+
+\subsection{Document Upload}
+When testing document upload functionality, I need to consider the following scenarios:
+\begin{itemize}
+    \item Uploading valid documents of different formats (PDF, DOCX, TXT, etc.)
+    \item Uploading invalid documents (corrupted files, unsupported formats)
+    \item Uploading large files (test the maximum file size limit)
+    \item Uploading multiple files at once
+    \item Uploading files with special characters in the filename
+    \item Uploading files with the same name (check for overwriting or versioning)
+    \item Uploading files with different permissions (read-only, hidden files)
+    \item Uploading files with different network conditions (slow connection, interrupted upload)
+\end{itemize}
+
+\subsection{API Endpoints}
+When testing API endpoints, I need to consider the following scenarios:
+\begin{itemize}
+    \item Valid requests with correct parameters
+    \item Invalid requests with missing or incorrect parameters
+    \item Unauthorized access (invalid API keys, expired tokens)
+    \item Rate limiting (exceeding the maximum number of requests)
+    \item Testing different HTTP methods (GET, POST, PUT, DELETE)
+    \item Testing response times and performance under load
+    \item Testing error handling and response codes (400, 401, 403, 404, 500)
+\end{itemize}
+
+
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{document}

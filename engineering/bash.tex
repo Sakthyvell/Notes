@@ -1,0 +1,51 @@
+\section{Unix Shell for Noobs}
+Unix shells are just cli tools to interact with your OS. They have lots of names. Bash, sh, zsh, fish etc. But bash is the most common one.
+
+\subsection{Why so many names?}
+These are just different implementations of the same idea. They have different features and syntax. But they all do the same thing. They allow you to run commands on your OS. For example,
+\begin{enumerate}
+    \item sh (Bourne Shell)
+    \begin{itemize}
+        \item \textbf{Origin}: The original Unix shell, developed by Stephen Bourne.
+        \item \textbf{Features}: Just pure simplicity and speed. No frills. No fancy features.
+        \item \textbf{Purpose}: If you need a simple shell for scripting, sh is the way to go. \textit{PS: It is not open source. Comes with Unix}
+    \end{itemize}
+    \item bash (Bourne Again Shell)
+    \begin{itemize}
+        \item \textbf{Origin}: Developed as a free software replacement for the Bourne Shell (sh).
+        \item \textbf{Features}: More features than sh. Like command history, tab completion, scripting capabilities etc.
+        \item \textbf{Purpose}: If you need a more powerful shell for interactive use and scripting, bash is the way to go.
+    \end{itemize}
+    \item zsh (Z Shell)
+    \begin{itemize}
+        \item \textbf{Origin}: Developed as an extended version of bash with more features.
+        \item \textbf{Features}: More features than bash. Like better tab completion, spell correction, themes etc.
+        \item \textbf{Purpose}: If you need a more customizable shell with more features, zsh is the way to go.
+    \end{itemize}
+    \item fish (Friendly Interactive Shell)
+    \begin{itemize}
+        \item \textbf{Origin}: Developed as a user-friendly shell with more features.
+        \item \textbf{Features}: Syntax highlighting, auto-suggestions, tab completions etc.
+        \item \textbf{Purpose}: If you want a user-friendly shell with modern features, fish is the way to go.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{How to work with multiple shells in your system?}
+So how do you know which shell you are using? Just run the command:
+\begin{lstlisting}[language=bash]
+echo $SHELL
+\end{lstlisting}
+This will print the path of the shell you are using. For example, if you are using bash, it will print \texttt{/bin/bash}.
+
+To change your default shell, you can use the \texttt{chsh} command. For example, to change your default shell to zsh, you can run:
+\begin{lstlisting}[language=bash]
+chsh -s /bin/zsh
+\end{lstlisting}
+You will need to log out and log back in for the changes to take effect.
+
+To install new shells, you can use your system's package manager. For example, on MacOS, you can use Homebrew:
+\begin{lstlisting}[language=bash]
+brew install zsh
+brew install fish
+\end{lstlisting}
+and then you can switch between them using the \texttt{chsh} command as shown above. Try which one you like the most!

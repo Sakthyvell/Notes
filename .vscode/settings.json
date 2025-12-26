@@ -1,31 +1,31 @@
-{
-  // Auto-build on save
-  "latex-workshop.latex.autoBuild.run": "onSave",
+// {
+//   // Auto-build on save
+//   "latex-workshop.latex.autoBuild.run": "onSave",
 
-  // PDF viewer in VSCode tab
-  "latex-workshop.view.pdf.viewer": "tab",
+//   // PDF viewer in VSCode tab
+//   "latex-workshop.view.pdf.viewer": "tab",
 
-  // Build recipe with custom script
-  "latex-workshop.latex.tools": [
-    {
-      "name": "build-to-output",
-      "command": "bash",
-      "args": [
-        "-c",
-        "BASE_NAME=$(basename %DOCFILE% .tex) && DIR_NAME=$(basename $(dirname %DOC%)) && if [ \"$BASE_NAME\" = \"main\" ]; then OUTPUT_NAME=$DIR_NAME; else OUTPUT_NAME=${DIR_NAME}-${BASE_NAME}; fi && pdflatex -interaction=nonstopmode -file-line-error -output-directory=%DIR%/../build -jobname=$OUTPUT_NAME %DOC%"
-      ],
-      "env": {}
-    }
-  ],
-  "latex-workshop.latex.recipes": [
-    {
-      "name": "Build to build/ folder",
-      "tools": [
-        "build-to-output"
-      ]
-    }
-  ],
+//   // Build recipe with custom script
+//   "latex-workshop.latex.tools": [
+//     {
+//       "name": "build-to-output",
+//       "command": "bash",
+//       "args": [
+//         "-c",
+//         "BASE_NAME=$(basename %DOCFILE% .tex) && DIR_NAME=$(basename $(dirname %DOC%)) && if [ \"$BASE_NAME\" = \"main\" ]; then OUTPUT_NAME=$DIR_NAME; else OUTPUT_NAME=${DIR_NAME}-${BASE_NAME}; fi && pdflatex -interaction=nonstopmode -file-line-error -output-directory=%DIR%/../build -jobname=$OUTPUT_NAME %DOC%"
+//       ],
+//       "env": {}
+//     }
+//   ],
+//   "latex-workshop.latex.recipes": [
+//     {
+//       "name": "Build to build/ folder",
+//       "tools": [
+//         "build-to-output"
+//       ]
+//     }
+//   ],
 
-  // Disable auto-clean to avoid latexmk dependency
-  "latex-workshop.latex.autoClean.run": "never"
-}
+//   // Disable auto-clean to avoid latexmk dependency
+//   "latex-workshop.latex.autoClean.run": "never"
+// }

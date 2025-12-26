@@ -43,3 +43,75 @@ from ..another_module import another_function  # Double dot means parent package
 \end{lstlisting}
 
 I see more value in absolute module because it remove cognitive load. It's all just there. You know exactly where the module is located in the project structure. There is no need for any mind calculations. But it's not bells and whistles. Relative imports to certain extent decouple the module from the project structure. So if you are moving modules around a lot, relative imports can be useful. But I think absolute imports are the way to go for most cases.
+
+
+\subsection{Python Objects}
+Python is not a strict object-oriented programming language, but it does support object-oriented programming concepts. Everything in Python is an object, including functions, classes, and even modules.
+
+\subsubsection{Dundr Methods}
+Dundr methods (short for "double underscore" methods) are special methods in Python that have double underscores at the beginning and end of their names. They are also known as magic methods or special methods. These methods allow you to define how objects of a class behave with respect to built-in operations and functions. Let's walk through some common dundr methods
+
+\paragraph{\textit{\_\_init\_\_}}
+The \texttt{\_\_init\_\_} method is called when an object of a class is created. It is used to initialize the object's attributes. For example:
+\begin{lstlisting}[caption=\texttt{\_\_init\_\_} Example]
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+person = Person("Alice", 30)
+\end{lstlisting}
+\noindent\makebox[\linewidth]{\rule{\paperwidth}{0.4pt}}
+\textit{\_\_init\_\_} is similar to a constructor in other programming languages. It is not the actual object creation method (which is \texttt{\_\_new\_\_}), but it is used to set up the initial state of the object after it has been created. \texttt{\_\_new\_\_} is rarely overridden unless you need to control the object creation process itself.
+
+\noindent\makebox[\linewidth]{\rule{\paperwidth}{0.4pt}}
+
+\paragraph{\textit{\_\_str\_\_} and \textit{\_\_repr\_\_}}
+The \texttt{\_\_str\_\_} method is used to define the string representation of an object for human-readable output, while \texttt{\_\_repr\_\_} is used for unambiguous representation, often for debugging. For example:
+\begin{lstlisting}[caption=\texttt{\_\_str\_\_} and \texttt{\_\_repr\_\_} Example]
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    def __str__(self):
+        return f"{self.name}, {self.age} years old"
+    def __repr__(self):
+        return f"Person(name={self.name}, age={self.age})"
+person = Person("Alice", 30)
+print(str(person))  # Output: Alice, 30 years old
+print(repr(person)) # Output: Person(name=Alice, age=30)
+\end{lstlisting}
+
+\paragraph{\textit{\_\_eq\_\_} and \textit{\_\_ne\_\_} and \textit{\_\_hash\_\_}}
+The \texttt{\_\_eq\_\_} method is used to define equality comparison between two objects, while \texttt{\_\_ne\_\_} defines inequality. The \texttt{\_\_hash\_\_} method is used to define the hash value of an object, which is important for using objects as keys in dictionaries or elements in sets. For example:
+\begin{lstlisting}[caption=\texttt{\_\_eq\_\_}\, \texttt{\_\_ne\_\_} and \texttt{\_\_hash\_\_} Example]
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    def __eq__(self, other):
+        return self.name == other.name and self.age == other.age
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    def __hash__(self):
+        return hash((self.name, self.age))
+person1 = Person("Alice", 30)
+person2 = Person("Alice", 30)
+print(person1 == person2)  # Output: True
+print(person1 != person2)  # Output: False
+person_set = {person1, person2}
+print(len(person_set))     # Output: 1
+\end{lstlisting}
+
+\subsubsection{Data Classes in Python}
+Data classes are a feature introduced in Python 3.7 via the \texttt{dataclasses} module. They provide a decorator and functions for automatically adding special methods to user-defined classes. Data classes are particularly useful for classes that primarily store data and have little to no custom behavior. They help reduce boilerplate code and make the code more readable. Here's a simple example of how to use data classes:
+\begin{lstlisting}[caption=Data Class Example]
+from dataclasses import dataclass
+
+@dataclass
+class Person:
+    name: str
+    age: int
+person = Person("Alice", 30)
+print(person)  # Output: Person(name='Alice', age=30)
+\end{lstlisting}
+In this example, the \texttt{@dataclass} decorator automatically generates the \texttt{\_\_init\_\_}, \texttt{\_\_repr\_\_}, \texttt{\_\_eq\_\_}, and other methods based on the class attributes defined. Data classes also support default values, type annotations, and immutability (using \texttt{frozen=True}).
